@@ -14,6 +14,11 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    return { token: await this.authService.generateToken('user-id-placeholder') };
+    return { token: await this.authService.generateToken({ id: 'user-id-placeholder', role: 'user-role-placeholder' }) };
   }
+
+  @Post('register-admin')
+  async registerAdmin(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto, 'admin');
+  }  
 }

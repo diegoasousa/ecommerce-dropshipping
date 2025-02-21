@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User, UserRole } from '../users/user.entity';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
@@ -21,14 +21,14 @@ export class AuthService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async generateToken(userId: string) {
-    return this.jwtService.sign({ userId });
+  async generateToken(user: { id: string; role: string }) {
+    return this.jwtService.sign({ userId: user.id, role: user.role });
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, role: UserRole = 'user') {
     const hashedPassword = await this.hashPassword(registerDto.password);
-    const user = this.userRepository.create({ ...registerDto, password: hashedPassword });
+    const user = this.userRepository.create({ ...registerDto, password: hashedPassword, role });
     await this.userRepository.save(user);
-    return { message: 'User registered successfully' };
+    return { message: 'User registered successfully', user };
   }
 }

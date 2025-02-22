@@ -1,12 +1,19 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
   selector: 'app-dashboard',
-  imports: [],
+  standalone: true,
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrls: ['./dashboard.component.css'],
+  imports: [CommonModule]
 })
 export class DashboardComponent {
+  constructor(private router: Router) {}
 
+  logout() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
+  }
 }

@@ -21,7 +21,7 @@ export class AuthService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async generateToken(user: { id: string; role: string }) {
+  async generateToken(user: { id: number; role: string }) {
     return this.jwtService.sign({ userId: user.id, role: user.role });
   }
 

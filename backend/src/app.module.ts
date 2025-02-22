@@ -6,11 +6,12 @@ import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
 import { AdminMiddleware } from './middleware/admin.middleware';
 import { ProductsController } from './products/products.controller';
 import { OrdersController } from './orders/orders.controller';
 import { UsersController } from './users/users.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
 @Module({
@@ -23,7 +24,15 @@ import { UsersController } from './users/users.controller';
     database: 'ecommerce',
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }), ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, ProductsModule, OrdersModule],
+  }), ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, ProductsModule, OrdersModule,
+  JwtModule.registerAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get<string>('JWT_SECRET'),
+      signOptions: { expiresIn: '1h' },
+    }),
+  }),],
   controllers: [AppController],
   providers: [AppService],
 })

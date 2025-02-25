@@ -16,6 +16,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
+    console.log(loginDto);
     const user = await this.usersService.findByEmail(loginDto.email);
 
     if (!user) {
@@ -27,8 +28,6 @@ export class AuthController {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Usuário ou senha inválidos');
     }
-
-    console.log(user.id, user.role);
 
     return { 
       token: await this.authService.generateToken({ id: user.id, role: user.role }) 

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nes
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -9,7 +10,7 @@ export class ProductsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() productData: Partial<Product>): Promise<Product> {
+  create(@Body() productData: CreateProductDto): Promise<Product> {
     return this.productsService.create(productData);
   }
 

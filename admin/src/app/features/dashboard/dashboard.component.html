@@ -1,5 +1,11 @@
 <nav>
-    <a routerLink="/dashboard">Dashboard</a>
-    <button (click)="logout()">Sair</button>
-  </nav>
-  <h1>Bem-vindo ao Painel Administrativo!</h1>
+  <ul>
+    <li><a routerLink="/dashboard">Dashboard</a></li>
+    <li><a routerLink="/products">Products</a></li>
+    <li><a routerLink="/orders">Orders</a></li>
+    <li><a routerLink="/users">Users</a></li>
+    <li><button (click)="logout()">Sair</button></li>
+  </ul>
+</nav>
+<h1>Bem-vindo ao Painel Administrativo!</h1>
+<router-outlet></router-outlet>

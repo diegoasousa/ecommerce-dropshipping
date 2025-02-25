@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -12,6 +13,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  private baseUrl = environment.apiUrl;
   email = '';
   password = '';
   errorMessage = '';
@@ -19,7 +21,7 @@ export class LoginComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   login() {
-    this.http.post<{ token: string }>('/api/auth/login', { email: this.email, password: this.password })
+    this.http.post<{ token: string }>(`${this.baseUrl}/auth/login`, { email: this.email, password: this.password })
       .subscribe({
         next: (res) => {
           localStorage.setItem('token', res.token);

@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany,OneToOne,JoinColumn } from 'typeorm';
 import { Order } from './../orders/entities/order.entity';
+import { Address } from './adress.entity';
 
 export type UserRole = 'admin' | 'user';
 
@@ -21,5 +22,9 @@ export class User {
   role: UserRole;  
 
   @OneToMany(() => Order, order => order.user)
-  orders: Order[];  
+  orders: Order[];
+  
+  @OneToOne(() => Address, { cascade: true })
+  @JoinColumn()
+  address: Address;
 }

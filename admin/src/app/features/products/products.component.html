@@ -1,1 +1,27 @@
-<p>products works!</p>
+<div class="container">
+    <h2>Criar Produto</h2>
+    <form (ngSubmit)="createProduct()">
+      <label>Nome do Produto</label>
+      <input type="text" [(ngModel)]="product.name" name="name" required>
+  
+      <label>Descrição</label>
+      <textarea [(ngModel)]="product.description" name="description"></textarea>
+  
+      <label>Preço</label>
+      <input type="number" [(ngModel)]="product.price" name="price" required>
+  
+      <label>URL de Compra</label>
+      <input type="text" [(ngModel)]="product.urlCssBuy" name="urlCssBuy" required>
+  
+      <label>Imagens (separadas por vírgula)</label>
+      <input type="text" [(ngModel)]="product.images" name="images" required>
+  
+      <label>Variações de Cor (nome|imagem, separadas por vírgula)</label>
+      <input type="text" [(ngModel)]="product.colorVariations" name="colorVariations" required>
+  
+      <label>Tamanhos Disponíveis (separados por vírgula)</label>
+      <input type="text" [(ngModel)]="product.sizes" name="sizes" required>
+  
+      <button type="submit">Criar Produto</button>
+    </form>
+  </div>

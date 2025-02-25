@@ -17,12 +17,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'user',
-    password: 'password',
-    database: 'ecommerce',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    username: process.env.DB_USERNAME || 'user',
+    password: process.env.DB_PASSWORD || 'password',
+    database: process.env.DB_NAME ||'ecommerce',
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    autoLoadEntities: true,
     synchronize: true,
   }), ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, ProductsModule, OrdersModule,
   JwtModule.registerAsync({

@@ -12,6 +12,11 @@ export class AdminMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
+      // Libera GET /products para acesso público
+      if (req.method === 'GET' && req.url === '/products') {
+        return next();
+      }
+
       const authHeader = req.headers.authorization;
       if (!authHeader) {
         throw new UnauthorizedException('Token não encontrado');
@@ -23,13 +28,11 @@ export class AdminMiddleware implements NestMiddleware {
         throw new UnauthorizedException('Token inválido');
       }
 
-      // Busca o usuário no banco de dados pelo ID decodificado do token
       const user = await this.usersService.findById(decoded.id);
       if (!user) {
         throw new UnauthorizedException('Usuário não encontrado');
       }
 
-      // Verifica se o usuário tem a role de 'admin'
       if (user.role !== 'admin') {
         throw new ForbiddenException('Acesso negado, privilégios insuficientes');
       }

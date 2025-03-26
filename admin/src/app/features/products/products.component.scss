@@ -1,10 +1,11 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 .container {
     max-width: 600px;
     margin: auto;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
   }
 
   h2 {
@@ -25,9 +26,18 @@
   }
 
   button {
+    width: 100%;
     padding: 10px;
-    background: blue;
+    background: #2c3e50;
     color: white;
     border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+  
+  button:hover {
+    background: #34495e;
   }

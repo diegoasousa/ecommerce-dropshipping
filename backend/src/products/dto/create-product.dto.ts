@@ -1,11 +1,9 @@
-import { Product } from '../entities/product.entity';
-
 export class CreateProductDto {
   name: string;
-  description?: string;
+  description: string;
   price: number;
   urlCssBuy: string;
-  images: string[];
-  colorVariations: { id: number; colorName: string; colorImage: string; product?: Product; }[];
-  sizes: string[];
+  sizes: string;
+  images: string[]; // Agora aceita múltiplas imagens
+  colorVariations: { colorName: string; colorImage: string }[]; // Cores com imagens associadas
 }

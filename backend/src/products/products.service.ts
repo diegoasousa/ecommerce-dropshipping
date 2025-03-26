@@ -19,10 +19,14 @@ export class ProductsService {
     private productImageRepository: Repository<ProductImage>,
   ) {}
 
+  
   async create(productData: CreateProductDto): Promise<Product> {
     const { colorVariations, images, ...productDetails } = productData;
   
-    const product = this.productRepository.create(productDetails);
+    const product = this.productRepository.create({
+      ...productDetails,
+      sizes: productDetails.sizes.split(',').map(size => size.trim()),
+    });
     const savedProduct = await this.productRepository.save(product);
   
     if (colorVariations) {

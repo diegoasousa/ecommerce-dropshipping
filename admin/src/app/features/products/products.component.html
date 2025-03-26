@@ -1,27 +1,82 @@
 <div class="container">
+  <h2>Produtos Cadastrados</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Descrição</th>
+        <th>Preço</th>
+        <th>Cores</th>
+        <th>Tamanhos</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of products">
+        <td>{{ item.name }}</td>
+        <td>{{ item.description }}</td>
+        <td>R$ {{ item.price }}</td>
+        <td>{{ getColorNames(item) }}</td>
+        <td>{{ item.sizes }}</td>
+        <td>
+          <button (click)="editProduct(item)" class="icon-button"><i class="fa fa-edit"></i></button>
+          <button (click)="deleteProduct(item.id)" class="icon-button"><i class="fa fa-trash"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <button type="button" (click)="showProductForm = true" *ngIf="!showProductForm">Criar Produto</button>
+  
+  <div *ngIf="showProductForm">
     <h2>Criar Produto</h2>
-    <form (ngSubmit)="createProduct()">
+    <form (ngSubmit)="submitProduct()">
       <label>Nome do Produto</label>
       <input type="text" [(ngModel)]="product.name" name="name" required>
-  
+
       <label>Descrição</label>
       <textarea [(ngModel)]="product.description" name="description"></textarea>
-  
+
       <label>Preço</label>
       <input type="number" [(ngModel)]="product.price" name="price" required>
-  
+
       <label>URL de Compra</label>
       <input type="text" [(ngModel)]="product.urlCssBuy" name="urlCssBuy" required>
-  
-      <label>Imagens (separadas por vírgula)</label>
-      <input type="text" [(ngModel)]="product.images" name="images" required>
-  
+
+      <label title="Você pode selecionar mais de uma imagem segurando Ctrl (Windows) ou Command (Mac)">
+        Imagens (separadas por vírgula)
+      </label>
+      <input type="file" accept=".jpg" multiple (change)="onFilesSelected($event)" name="images" required>
+      <div *ngIf="selectedFiles.length > 0">
+        <p>Imagens Selecionadas:</p>
+        <ul>
+          <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
+        </ul>
+      </div>
+
       <label>Variações de Cor (nome|imagem, separadas por vírgula)</label>
-      <input type="text" [(ngModel)]="product.colorVariations" name="colorVariations" required>
-  
+      <div *ngFor="let color of colorVariations; let i = index">
+        <input
+          type="text"
+          placeholder="Nome da cor"
+          [(ngModel)]="color.colorName"
+          name="colorName{{i}}"
+          required
+        />
+        <input
+          type="file"
+          accept=".jpg"
+          (change)="onColorImageSelected($event, i)"
+          name="colorVariations{{i}}"
+          required
+        />
+      </div>
+      <button type="button" style="background-color: #e0e0e0; border: 1px solid #ccc; padding: 6px 12px; font-size: 0.9em; margin-top: 10px;" (click)="addColorVariation()">Criar Cor</button>
+
       <label>Tamanhos Disponíveis (separados por vírgula)</label>
       <input type="text" [(ngModel)]="product.sizes" name="sizes" required>
-  
-      <button type="submit">Criar Produto</button>
+
+      <button type="submit">{{ editingProductId ? 'Atualizar Produto' : 'Criar Produto' }}</button>
     </form>
   </div>
+</div>

@@ -13,7 +13,9 @@ export class AdminMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     try {
       // Libera GET /products para acesso público
-      if (req.method === 'GET' && req.url === '/products') {
+
+      // Permite todas as rotas que não sejam /admin
+      if (!req.url.startsWith('/admin')) {
         return next();
       }
 

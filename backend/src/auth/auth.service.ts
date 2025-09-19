@@ -5,11 +5,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../users/user.entity';
 import { RegisterDto } from './dto/register.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private configService: ConfigService,
     @InjectRepository(User) private userRepository: Repository<User>
   ) {}
 
@@ -21,8 +23,15 @@ export class AuthService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async generateToken(user: { id: number; role: string }) {
-    return this.jwtService.sign({ userId: user.id, role: user.role });
+  async generateToken(payload: { id: number; role: string; name?: string; email?: string }) {
+    const secret = this.configService.get<string>('JWT_SECRET');
+    const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') || '7d';
+    
+    if (!secret) {
+      throw new Error('JWT_SECRET is not defined in environment variables');
+    }
+    
+    return this.jwtService.sign(payload, { secret, expiresIn });
   }
 
   async register(registerDto: RegisterDto, role: UserRole = 'user') {

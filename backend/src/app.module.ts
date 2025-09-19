@@ -1,39 +1,42 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
-import { OrdersModule } from './orders/orders.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getDatabaseConfig } from './config/database.config';
 import { AdminMiddleware } from './middleware/admin.middleware';
-import { ProductsController } from './products/products.controller';
 import { OrdersController } from './orders/orders.controller';
+import { OrdersModule } from './orders/orders.module';
+import { PaymentModule } from './payment/payment.module';
+import { ProductsController } from './products/products.controller';
+import { ProductsModule } from './products/products.module';
 import { UsersController } from './users/users.controller';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    username: process.env.DB_USERNAME || 'user',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME ||'ecommerce',
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    autoLoadEntities: true,
-    synchronize: true,
-  }), ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, ProductsModule, OrdersModule,
-  JwtModule.registerAsync({
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => ({
-      secret: process.env.JWT_SECRET || 'defaultSecret', // Use environment variable or default valueß
-      signOptions: { expiresIn: '1h' },
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      username: process.env.DB_USERNAME || 'user',
+      password: process.env.DB_PASSWORD || 'password',
+      database: process.env.DB_NAME || 'ecommerce',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV !== 'production' ? ['query', 'error'] : ['error'],
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
-  }),],
+    AuthModule,
+    UsersModule,
+    ProductsModule,
+    OrdersModule,
+    PaymentModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

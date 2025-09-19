@@ -1,0 +1,82 @@
+<div class="store-container">
+  <!-- Header -->
+  <header class="store-header">
+    <h2 class="store-title">Vitrine de Produtos</h2>
+  </header>
+
+  <div class="product-list">
+    <div *ngFor="let product of products" class="product-item">
+      <div class="product-images">
+        <img
+          [src]="selectedImageMap[product.id] || (product.images[0].url | assetUrl)"
+          alt="{{ product.name }}"
+          class="main-image"
+        />
+        <div class="thumbnail-row" *ngIf="product.images && product.images.length > 1">
+          <img
+            *ngFor="let img of product.images"
+            [src]="img.url | assetUrl"
+            class="thumbnail"
+            (click)="selectImage(product.id, img.url)"
+          />
+        </div>
+      </div>
+
+      <div class="product-details">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description }}</p>
+
+        <div class="product-price">
+          <strong>R$ {{ product.price | number: '1.2-2' }}</strong>
+        </div>
+
+        <div class="product-variations" *ngIf="product.colorVariations?.length">
+          <div class="color-picker">
+            <button
+              *ngFor="let color of product.colorVariations"
+              class="color-option"
+              [class.selected]="selectedColorMap[product.id] === (color.colorImage | assetUrl)"
+              (click)="selectColor(product.id, color.colorImage)"
+            >
+              <img
+                [src]="color.colorImage | assetUrl"
+                [alt]="color.colorName"
+                class="color-swatch"
+              />
+            </button>
+          </div>
+        </div>
+
+        <div class="product-sizes" *ngIf="product.sizes?.length">
+          <div class="size-options">
+            <label
+              *ngFor="let size of product.sizes"
+              class="size-option"
+              [class.selected]="selectedSizeMap[product.id] === size"
+              (click)="selectSize(product.id, size)"
+            >
+              {{ size }}
+            </label>
+          </div>
+        </div>
+
+
+        <!-- Seletor de quantidade -->
+        <div class="quantity-control">
+          <button (click)="decreaseQuantity(product)">−</button>
+          <input type="number" [value]="product.quantity || 1" min="1" max="10" readonly />
+          <button (click)="increaseQuantity(product)">+</button>
+        </div>
+
+        <!-- Botão de comprar agora -->
+        <button class="buy-button" (click)="buyNow(product)">
+          Comprar agora
+        </button>
+
+
+
+                
+      </div>
+    </div>
+  </div>
+</div>

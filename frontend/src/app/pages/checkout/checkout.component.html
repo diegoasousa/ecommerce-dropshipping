@@ -1,0 +1,24 @@
+<div class="checkout-container">
+  <h2>Finalizar Compra</h2>
+
+
+  <div class="checkout-content">
+    <!-- Resumo do pedido -->
+    <div class="checkout-summary">
+      <h3>Resumo do Pedido</h3>
+      <div *ngFor="let item of cartItems" class="checkout-item">
+        <div class="item-info">
+          <p><strong>{{ item.name }}</strong></p>
+          <p>Tamanho: {{ item.selectedSize }}</p>
+          <p>Cor: <img [src]="item.selectedColor" alt="Cor selecionada" style="width: 40px; height: 40px; border-radius: 4px;"></p>
+          <p>Quantidade: {{ item.quantity || 1 }}</p>
+          <p>Preço: R$ {{ item.price | number:'1.2-2' }}</p>
+        </div>
+      </div>
+      <div class="checkout-total">
+        <p><strong>Total:</strong> R$ {{ getTotal() | number:'1.2-2' }}</p>
+      </div>
+      <button class="checkout-button" (click)="submitOrder()">Finalizar Pedido</button>
+    </div>
+  </div>
+</div>

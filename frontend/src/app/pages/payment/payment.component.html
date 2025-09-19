@@ -1,0 +1,121 @@
+<div class="payment-form-container">
+  <h2>Informações de Pagamento</h2>
+
+  <!-- Seção de Autenticação -->
+  <div class="auth-section" *ngIf="!isLoggedIn">
+    <div class="login-prompt">
+      <h3>Para continuar, faça login com sua conta Google</h3>
+      <p>Isso nos permite preencher automaticamente suas informações e agilizar o processo de pagamento.</p>
+      <button class="google-login-btn" (click)="beginGoogleLogin()">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon">
+        Entrar com Google
+      </button>
+      <p class="optional-text">Ou preencha manualmente os campos abaixo:</p>
+    </div>
+  </div>
+
+  <!-- Informações do usuário logado -->
+  <div class="user-info" *ngIf="isLoggedIn">
+    <div class="user-details">
+      <img *ngIf="userAvatarUrl" [src]="userAvatarUrl" class="user-avatar" alt="Avatar" />
+      <span class="user-name">Logado como: {{ userName }}</span>
+      <button class="logout-btn" (click)="logout()">Sair</button>
+    </div>
+  </div>
+
+  <form>
+    <!-- Contato -->
+    <div class="form-group">
+      <label for="email">E-mail de contato</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        [(ngModel)]="email"
+        required
+        placeholder="exemplo@dominio.com"
+      />
+    </div>
+
+    <!-- Endereço -->
+    <div class="form-group">
+      <label for="cep">CEP</label>
+      <input
+        type="text"
+        id="cep"
+        name="cep"
+        [(ngModel)]="cep"
+        (blur)="onCepBlur()"
+        required
+        placeholder="Digite o CEP"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="street">Rua</label>
+      <input
+        type="text"
+        id="street"
+        name="street"
+        [(ngModel)]="street"
+        required
+        placeholder="Rua"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="number">Número</label>
+      <input
+        type="text"
+        id="number"
+        name="number"
+        [(ngModel)]="number"
+        required
+        placeholder="Número"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="complement">Complemento</label>
+      <input
+        type="text"
+        id="complement"
+        name="complement"
+        [(ngModel)]="complement"
+        placeholder="Complemento"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="city">Cidade</label>
+      <input
+        type="text"
+        id="city"
+        name="city"
+        [(ngModel)]="city"
+        required
+        placeholder="Cidade"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="state">Estado</label>
+      <input
+        type="text"
+        id="state"
+        name="state"
+        [(ngModel)]="state"
+        required
+        placeholder="Estado"
+      />
+    </div>
+
+    
+  </form>
+
+<div class="form-group">
+  <button type="button" class="submit-button" (click)="submitPayment()">
+    Pagar
+  </button>
+</div>
+</div>

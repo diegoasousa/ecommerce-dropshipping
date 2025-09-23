@@ -1,0 +1,17 @@
+# Ignorar arquivo de produção
+.env.production
+
+# Logs
+*.log
+logs/
+
+# SSL certificates
+ssl/*.pem
+
+# Backup files
+*.sql
+backup/
+
+# Temporary files
+.tmp/
+temp/

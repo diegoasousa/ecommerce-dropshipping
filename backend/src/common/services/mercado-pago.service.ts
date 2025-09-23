@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { MercadoPagoPreferenceRequest, MercadoPagoPreferenceResponse } from '../../types/mercado-pago.types';
  
 @Injectable()
@@ -55,10 +55,14 @@ export class MercadoPagoService {
 
   async createPreference(order: any): Promise<MercadoPagoPreferenceResponse> {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4400';
+    const backendUrl = this.configService.get<string>('BACKEND_URL') || 'http://localhost:3001';
+    const nodeEnv = this.configService.get<string>('NODE_ENV') || 'development';
     
     console.log('Frontend URL configurada:', frontendUrl);
+    console.log('Backend URL configurada:', backendUrl);
+    console.log('Ambiente:', nodeEnv);
     
-    // Tentar sem auto_return primeiro, que é opcional
+    // Configuração base da preferência
     const preference: any = {
       items: order.items.map((item: any, index: number) => ({
         id: `${index + 1}`,
@@ -71,14 +75,24 @@ export class MercadoPagoService {
         name: order.customer?.name || 'Cliente',
         email: order.customer?.email || 'sem-email@dominio.com',
       },
-      back_urls: {
+      notification_url: `${backendUrl}/mercadopago/webhook`,
+      external_reference: order.orderId?.toString() || `order_${Date.now()}`,
+    };
+
+    // Adicionar back_urls apenas se não for localhost (desenvolvimento)
+    const isLocalhost = frontendUrl.includes('localhost') || frontendUrl.includes('127.0.0.1');
+    
+    if (!isLocalhost) {
+      preference.back_urls = {
         success: `${frontendUrl}/payment/success`,
         failure: `${frontendUrl}/payment/failure`,
         pending: `${frontendUrl}/payment/pending`,
-      },
-      // Usar 'all' ao invés de 'approved' que é mais restritivo
-      auto_return: 'all',
-    };
+      };
+      preference.auto_return = 'all';
+      console.log('Back URLs adicionadas para ambiente de produção');
+    } else {
+      console.log('Back URLs omitidas para ambiente de desenvolvimento (localhost)');
+    }
 
     console.log('Dados recebidos no MercadoPagoService:', JSON.stringify(order, null, 2));
     console.log('Preferência enviada ao Mercado Pago:', JSON.stringify(preference, null, 2));
@@ -100,32 +114,70 @@ export class MercadoPagoService {
       } as MercadoPagoPreferenceResponse;
     } catch (error) {
       console.error('ERRO do Mercado Pago:', error);
-      
-      // Se der erro com back_urls, tentar versão simplificada
-      if (error.message && error.message.includes('back_url')) {
-        console.log('Tentando versão simplificada sem back_urls...');
-        
-        const simplePreference = {
-          items: preference.items,
-          payer: preference.payer,
-        };
-        
-        console.log('Preferência simplificada:', JSON.stringify(simplePreference, null, 2));
-        
-        const result = await client.create({ body: simplePreference });
-        console.log('Resposta do Mercado Pago - SUCESSO (simplificada):', result);
-        
-        return {
-          id: result.id || '',
-          init_point: result.init_point || '',
-          sandbox_init_point: result.sandbox_init_point || '',
-          date_created: result.date_created || '',
-          operation_type: result.operation_type || '',
-          items: result.items || []
-        } as MercadoPagoPreferenceResponse;
-      }
-      
       throw error;
     }
+  }
+
+  async processWebhook(body: any, query: any): Promise<any> {
+    console.log('Processando webhook do Mercado Pago...');
+    
+    // Verificar o tipo de notificação
+    const { type, data } = body;
+    
+    if (!type || !data) {
+      console.log('Webhook sem type ou data, ignorando...');
+      return { status: 'ignored', reason: 'Missing type or data' };
+    }
+
+    // Processar apenas notificações de pagamento
+    if (type === 'payment') {
+      const paymentId = data.id;
+      console.log(`Processando pagamento ID: ${paymentId}`);
+      
+      try {
+        // Consultar detalhes do pagamento na API do Mercado Pago
+        const paymentClient = new Payment(this.mp);
+        const payment = await paymentClient.get({ id: paymentId });
+        
+        console.log('Detalhes do pagamento:', JSON.stringify(payment, null, 2));
+        
+        // Verificar se o pagamento foi aprovado
+        if (payment.status === 'approved') {
+          console.log('Pagamento aprovado! Atualizando status do pedido...');
+          
+          return {
+            status: 'processed',
+            paymentId: paymentId,
+            paymentStatus: payment.status,
+            amount: payment.transaction_amount,
+            externalReference: payment.external_reference
+          };
+        } else {
+          console.log(`Pagamento com status: ${payment.status}, não processando...`);
+          return {
+            status: 'not_processed',
+            paymentId: paymentId,
+            paymentStatus: payment.status,
+            reason: 'Payment not approved'
+          };
+        }
+      } catch (error) {
+        console.error('Erro ao consultar pagamento:', error);
+        
+        // Se o pagamento não foi encontrado, retornar erro específico
+        if (error.status === 404) {
+          return {
+            status: 'error',
+            paymentId: paymentId,
+            reason: 'Payment not found',
+            error: error.message
+          };
+        }
+        
+        throw error;
+      }
+    }
+    
+    return { status: 'ignored', reason: 'Not a payment notification' };
   }
 }

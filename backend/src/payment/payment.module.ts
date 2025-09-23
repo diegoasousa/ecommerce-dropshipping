@@ -3,9 +3,10 @@ import { PaymentController } from './payment.controller';
 import { MercadoPagoController } from '../mercadopago/mercadopago.controller';
 import { MercadoPagoService } from '../common/services/mercado-pago.service';
 import { ProductsModule } from '../products/products.module';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
-  imports: [ProductsModule],
+  imports: [ProductsModule, OrdersModule],
   controllers: [PaymentController, MercadoPagoController],
   providers: [MercadoPagoService],
   exports: [MercadoPagoService],

@@ -18,5 +18,8 @@ export class OrderItem {
   quantity: number;
 
   @Column()
-  size: string; // ⬅️ tamanho selecionado
+  selectedSize: string;
+
+  @Column()
+  selectedColor: string;
 }

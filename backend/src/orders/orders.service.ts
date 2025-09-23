@@ -5,12 +5,14 @@ import { Address } from '../users/address.entity';
 import { User } from '../users/user.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './entities/order.entity';
+import { OrderItem } from './entities/order-item.entity';
 import { Product } from 'src/products/entities/product.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
+    @InjectRepository(OrderItem) private orderItemRepository: Repository<OrderItem>,
     @InjectRepository(Address) private addressRepository: Repository<Address>,
     @InjectRepository(Product) private productRepository: Repository<Product>,
   ) {}
@@ -19,21 +21,31 @@ export class OrdersService {
     const order = this.orderRepository.create({
       user,
       status: dto.status,
-      items: []
+      items: [],
+      total: 0
     });
+
+    let total = 0;
 
     // Create order items based on the DTO
     for (const item of dto.items) {
       const product = await this.productRepository.findOneBy({ id: item.productId });
       if (product) {
-        order.items.push({
+        const itemTotal = Number(product.price) * item.quantity;
+        total += itemTotal;
+        
+        const orderItem = this.orderItemRepository.create({
           product,
           quantity: item.quantity,
           selectedSize: item.selectedSize,
           selectedColor: item.selectedColor,
-        } as any); // adaptar ao tipo OrderItem se necessário
+        });
+        
+        order.items.push(orderItem);
       }
     }
+
+    order.total = total;
     return this.orderRepository.save(order);
   }  
 

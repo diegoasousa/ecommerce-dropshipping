@@ -49,9 +49,8 @@ Description: Backend API
 
 ### 2.1 Conectar via SSH
 ```bash
-# Substitua pela sua chave e IP público
-ssh -i ~/.ssh/sua_chave ubuntu@SEU_IP_PUBLICO
-```
+# Comando específico para sua VM Oracle Cloud
+ssh -i ~/.ssh/oracle_cloud_key ubuntu@SEU_IP_PUBLICO_ORACLE
 
 ### 2.2 Executar Script de Instalação
 ```bash
@@ -64,7 +63,7 @@ chmod +x install.sh
 
 # Logout e login novamente (para aplicar permissões Docker)
 exit
-ssh -i ~/.ssh/sua_chave ubuntu@SEU_IP_PUBLICO
+ssh -i ~/.ssh/oracle_cloud_key ubuntu@SEU_IP_PUBLICO_ORACLE
 
 # Verificar Docker
 docker --version

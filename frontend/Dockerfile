@@ -1,19 +1,25 @@
 # Dockerfile para Frontend Angular
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 
 WORKDIR /app
+
+# Configurar npm para ser mais rápido e confiável
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-timeout 60000
 
 # Copiar package.json e package-lock.json (se existir)
 COPY package*.json ./
 
-# Instalar dependências (incluindo devDependencies para o build)
-RUN npm ci
+# Instalar dependências com configurações otimizadas
+RUN npm ci --no-audit --no-fund --prefer-offline --progress=false
 
 # Copiar código fonte
 COPY . .
 
 # Build da aplicação para produção
-RUN npm run build
+RUN npm run build --progress=false
 
 # Estágio de produção com Nginx
 FROM nginx:alpine

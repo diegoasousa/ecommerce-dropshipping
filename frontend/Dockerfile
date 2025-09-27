@@ -17,12 +17,12 @@ RUN npm config set registry https://registry.npmjs.org/ && \
 # Copiar package.json e package-lock.json (se existir)
 COPY package*.json ./
 
-# Instalar apenas Angular CLI globalmente para acelerar
+# Instalar Angular CLI globalmente (opcional, útil para scripts)
 RUN npm install -g @angular/cli@19.1.7 --no-audit --no-fund
 
-# Instalar dependências com cache otimizado
-RUN npm ci --only=production --no-audit --no-fund --silent && \
-    npm install @angular-devkit/build-angular @angular/cli @angular/compiler-cli typescript --no-audit --no-fund --silent
+# Instalar TODAS as dependências incluindo devDependencies (necessárias para build Angular)
+# Usamos npm ci para builds reprodutíveis
+RUN npm ci --no-audit --no-fund --silent
 
 # Copiar código fonte
 COPY . .

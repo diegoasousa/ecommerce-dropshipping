@@ -13,36 +13,42 @@ echo "🛑 Parando containers existentes..."
 docker stop ecommerce-frontend 2>/dev/null || true
 docker rm ecommerce-frontend 2>/dev/null || true
 
-# Usar nginx diretamente com arquivos estáticos
-echo "📁 Criando container nginx com arquivos estáticos..."
-
 # Criar diretório temporário para os arquivos
 sudo mkdir -p /opt/ecommerce/frontend-static
 sudo chown $USER:$USER /opt/ecommerce/frontend-static
 
-# Se temos arquivos buildados localmente, usar eles
-if [ -d "dist/frontend/browser" ]; then
-    echo "✅ Usando arquivos buildados encontrados (Angular 17+)..."
-    cp -r dist/frontend/browser/* /opt/ecommerce/frontend-static/
-elif [ -d "dist/frontend" ] && [ -f "dist/frontend/index.html" ]; then
-    echo "✅ Usando arquivos buildados encontrados (Angular <17)..."
-    cp -r dist/frontend/* /opt/ecommerce/frontend-static/
+# Se já existirem arquivos prontos em /opt/ecommerce/frontend-static, pular build/cópia
+if [ -f "/opt/ecommerce/frontend-static/index.html" ]; then
+    echo "✅ Arquivos estáticos já encontrados em /opt/ecommerce/frontend-static — pulando build/cópia."
 else
-    echo "🏗️ Fazendo build simples no servidor..."
-    
-    # Tentar instalar apenas o Angular CLI
-    npm install -g @angular/cli@latest --force --silent || echo "Usando ng global existente"
-    
-    # Tentar build direto sem npm ci
-    if command -v ng >/dev/null 2>&1; then
-        echo "📦 Angular CLI encontrado, fazendo build..."
-        ng build --configuration=production --output-path=/opt/ecommerce/frontend-static
+    # Usar nginx diretamente com arquivos estáticos
+    echo "📁 Preparando arquivos estáticos para o nginx..."
+
+    # Se temos arquivos buildados localmente, usar eles
+    if [ -d "dist/frontend/browser" ]; then
+        echo "✅ Usando arquivos buildados encontrados (Angular 17+)..."
+        cp -r dist/frontend/browser/* /opt/ecommerce/frontend-static/
+    elif [ -d "dist/frontend" ] && [ -f "dist/frontend/index.html" ]; then
+        echo "✅ Usando arquivos buildados encontrados (Angular <17)..."
+        cp -r dist/frontend/* /opt/ecommerce/frontend-static/
     else
-        echo "❌ Angular CLI não disponível. Use o build local."
-        exit 1
+        echo "🏗️ Fazendo build simples no servidor..."
+        
+        # Tentar instalar apenas o Angular CLI
+        npm install -g @angular/cli@latest --force --silent || echo "Usando ng global existente"
+        
+        # Tentar build direto sem npm ci
+        if command -v ng >/dev/null 2>&1; then
+            echo "📦 Angular CLI encontrado, fazendo build..."
+            ng build --configuration=production --output-path=/opt/ecommerce/frontend-static
+        else
+            echo "❌ Angular CLI não disponível e nenhum build local encontrado. Use o build local."
+            exit 1
+        fi
     fi
 fi
 
+# Se temos arquivos buildados localmente, usar eles
 # Verificar se temos arquivos para servir
 if [ ! -f "/opt/ecommerce/frontend-static/index.html" ]; then
     echo "❌ Arquivos de build não encontrados em /opt/ecommerce/frontend-static/"

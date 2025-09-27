@@ -33,12 +33,12 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=${DATABASE_USER:-postgres}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres123}
-      - DATABASE_NAME=${DATABASE_NAME:-ecommerce_dropshipping}
-      - BACKEND_URL=${BACKEND_URL:-http://localhost:3001}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=${DATABASE_USER:-postgres}
+      - DB_PASSWORD=${DATABASE_PASSWORD:-postgres123}
+      - DB_NAME=${DATABASE_NAME:-ecommerce_dropshipping}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:3000}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:4400}
       - MERCADO_PAGO_PUBLIC_KEY=${MERCADO_PAGO_PUBLIC_KEY}
       - MERCADO_PAGO_ACCESS_TOKEN=${MERCADO_PAGO_ACCESS_TOKEN}

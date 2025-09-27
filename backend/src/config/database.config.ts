@@ -3,6 +3,18 @@ import { ConfigService } from '@nestjs/config';
 
 export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
   const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  const dbSsl = configService.get<string>('DB_SSL');
+  
+  // Determine SSL configuration
+  let sslConfig: boolean | object = false;
+  if (dbSsl === 'true') {
+    sslConfig = { rejectUnauthorized: false };
+  } else if (dbSsl === 'false') {
+    sslConfig = false;
+  } else {
+    // Default behavior - no SSL for Docker environments
+    sslConfig = false;
+  }
   
   return {
     type: 'postgres',
@@ -15,7 +27,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     autoLoadEntities: true,
     synchronize: !isProduction, // Only sync in development
     logging: !isProduction ? ['query', 'error'] : ['error'], // Log queries in development
-    ssl: false, // Disabled SSL for Docker environment
+    ssl: sslConfig,
     migrations: ['dist/migrations/*{.ts,.js}'],
     migrationsTableName: 'migrations',
     migrationsRun: isProduction, // Auto-run migrations in production

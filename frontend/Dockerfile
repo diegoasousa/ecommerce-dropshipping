@@ -3,17 +3,26 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
-# Configurar npm para ser mais rápido e confiável
+# Instalar apenas as dependências essenciais do sistema
+RUN apk add --no-cache git
+
+# Configurar npm para máxima performance
 RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-factor 2 && \
-    npm config set fetch-timeout 60000
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-factor 1 && \
+    npm config set fetch-timeout 30000 && \
+    npm config set cache /tmp/.npm && \
+    npm config set prefer-offline true
 
 # Copiar package.json e package-lock.json (se existir)
 COPY package*.json ./
 
-# Instalar dependências com configurações otimizadas
-RUN npm ci --no-audit --no-fund --prefer-offline --progress=false
+# Instalar apenas Angular CLI globalmente para acelerar
+RUN npm install -g @angular/cli@19.1.7 --no-audit --no-fund
+
+# Instalar dependências com cache otimizado
+RUN npm ci --only=production --no-audit --no-fund --silent && \
+    npm install @angular-devkit/build-angular @angular/cli @angular/compiler-cli typescript --no-audit --no-fund --silent
 
 # Copiar código fonte
 COPY . .

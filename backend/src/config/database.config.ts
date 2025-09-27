@@ -15,7 +15,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     autoLoadEntities: true,
     synchronize: !isProduction, // Only sync in development
     logging: !isProduction ? ['query', 'error'] : ['error'], // Log queries in development
-    ssl: isProduction ? { rejectUnauthorized: false } : false, // SSL for production
+    ssl: false, // Disabled SSL for Docker environment
     migrations: ['dist/migrations/*{.ts,.js}'],
     migrationsTableName: 'migrations',
     migrationsRun: isProduction, // Auto-run migrations in production

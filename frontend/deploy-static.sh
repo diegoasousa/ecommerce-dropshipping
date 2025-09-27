@@ -21,8 +21,11 @@ sudo mkdir -p /opt/ecommerce/frontend-static
 sudo chown $USER:$USER /opt/ecommerce/frontend-static
 
 # Se temos arquivos buildados localmente, usar eles
-if [ -d "dist/frontend" ]; then
-    echo "✅ Usando arquivos buildados encontrados..."
+if [ -d "dist/frontend/browser" ]; then
+    echo "✅ Usando arquivos buildados encontrados (Angular 17+)..."
+    cp -r dist/frontend/browser/* /opt/ecommerce/frontend-static/
+elif [ -d "dist/frontend" ] && [ -f "dist/frontend/index.html" ]; then
+    echo "✅ Usando arquivos buildados encontrados (Angular <17)..."
     cp -r dist/frontend/* /opt/ecommerce/frontend-static/
 else
     echo "🏗️ Fazendo build simples no servidor..."
